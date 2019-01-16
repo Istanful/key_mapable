@@ -2,7 +2,7 @@
 
 # Used internally by the KeyMapable concern.
 class KeyMapable::Mapper
-  attr_reader :value
+  attr_reader :value, :tree
 
   def initialize(value)
     @value = value

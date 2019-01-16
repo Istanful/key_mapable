@@ -25,8 +25,9 @@ class MyClass
   extend KeyMapable
 
   # Define a method called `#to_h` that use the provided map. The keys
-  # will be accessed on the provided subject.
-  define_map(:to_h, subject: :my_reader) do
+  # will be accessed on the provided subject. Transform the resulting hash
+  # with the provided lambda.
+  define_map(:to_h, resolve: ->(val) { val }, subject: :my_reader) do
     # Map the value of `#name` to the key 'Name'.
     key_map(:name, 'Name')
 
