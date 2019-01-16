@@ -24,7 +24,7 @@ require "key_mapable/mapper"
 #       key_value('AConstant') { 'Foo' }
 #
 #       # Map every item returned from `#rows`.
-#       array_key_map(:rows) do
+#       array_key_map(:rows, 'Rows') do
 #         # Map the value of `#id` to the key 'Id'.
 #         key_map(:id, 'Id')
 #       end

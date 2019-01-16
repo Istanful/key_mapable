@@ -1,8 +1,6 @@
 # KeyMapable
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/key_mapable`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+Easily transform keys from one format to another.
 
 ## Installation
 
@@ -22,7 +20,31 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+class MyClass
+  extend KeyMapable
+
+  # Define a method called `#to_h` that use the provided map. The keys
+  # will be accessed on the provided subject.
+  define_map(:to_h, subject: :my_reader) do
+    # Map the value of `#name` to the key 'Name'.
+    key_map(:name, 'Name')
+
+    # Map the value of `#maybe_value` to the key 'GuaranteedValue'.
+    # Transform the value by calling `#to_s` first.
+    key_map(:maybe_value, 'GuaranteedValue', &:to_s)
+
+    # Map the key 'Name' to the value provided by the block.
+    key_value('AConstant') { 'Foo' }
+
+    # Map every item returned from `#rows`.
+    array_key_map(:rows, 'Rows') do
+      # Map the value of `#id` to the key 'Id'.
+      key_map(:id, 'Id')
+    end
+  end
+end
+```
 
 ## Development
 
