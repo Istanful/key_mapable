@@ -33,7 +33,7 @@ class MyClass
 
     # Map the value of `#maybe_value` to the key 'GuaranteedValue'.
     # Transform the value by calling `#to_s` first.
-    key_map(:maybe_value, 'GuaranteedValue', &:to_s)
+    key_map(:maybe_value, 'GuaranteedValue') { transform(&:to_s) }
 
     # Map the key 'Name' to the value provided by the block.
     key_value('AConstant') { 'Foo' }

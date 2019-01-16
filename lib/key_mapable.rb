@@ -9,7 +9,7 @@ module KeyMapable
       value = public_send(subject)
       mapper = Mapper.new(value)
       mapper.instance_eval(&block)
-      resolve.call(mapper.tree)
+      resolve.call(mapper.structure)
     end
   end
 end

@@ -19,7 +19,7 @@ RSpec.describe KeyMapable do
 
           define_map(:to_h, resolve: mock_resolve, subject: :my_reader) do
             key_map(:name, 'Name')
-            key_map(:maybe_value, 'GuaranteedValue', &:to_s)
+            key_map(:maybe_value, 'GuaranteedValue') { transform(&:to_s) }
             key_value('AConstant') { 'Foo' }
             array_key_map(:rows, 'Rows') do
               key_map(:id, 'Id')
@@ -45,7 +45,7 @@ RSpec.describe KeyMapable do
 
         expect(result).to eq({
           'Name': 'Bob',
-          'GuaranteedValue':'',
+          'GuaranteedValue': '',
           'AConstant': 'Foo',
           'Rows': [
             { 'Id' => 1 }

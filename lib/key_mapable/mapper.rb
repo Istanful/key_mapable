@@ -2,45 +2,48 @@
 
 # Used internally by the KeyMapable concern.
 class KeyMapable::Mapper
-  attr_reader :value, :tree
+  attr_reader :subject, :structure
 
-  def initialize(value)
-    @value = value
-    @tree = {}
-  end
-
-  def key(name, &block)
-    child_mapper = self.class.new(value)
-    child_mapper.instance_eval(&block)
-    @tree[name] = child_mapper.resolve
-  end
-
-  def key_map(original_key, new_key, &block)
-    original_value = value.public_send(original_key)
-    if block_given?
-      child_mapper = self.class.new(original_value)
-      @tree[new_key] = child_mapper.instance_eval do
-        yield(original_value)
-      end
-    else
-      @tree[new_key] = original_value
-    end
+  def initialize(subject)
+    @subject = subject
+    @structure = {}
   end
 
   def key_value(key)
-    @tree[key] = yield()
+    @structure[key] = yield()
+  end
+
+  def key(name, &block)
+    child_mapper = self.class.new(subject)
+    child_mapper.instance_eval(&block)
+    @structure[name] = child_mapper.resolve
+  end
+
+  def key_map(original_key, new_key, &block)
+    original_subject = subject.public_send(original_key)
+    if block_given?
+      child_mapper = self.class.new(original_subject)
+      child_mapper.instance_eval &block
+      @structure[new_key] = child_mapper.resolve
+    else
+      @structure[new_key] = original_subject
+    end
   end
 
   def array_key_map(original_key, new_key, &block)
-    original_value = value.public_send(original_key)
-    @tree[new_key] = original_value.map do |item|
+    original_subject = subject.public_send(original_key)
+    @structure[new_key] = original_subject.map do |item|
       child_mapper = self.class.new(item)
       child_mapper.instance_eval(&block)
       child_mapper.resolve
     end
   end
 
+  def transform
+    @structure = yield(@subject)
+  end
+
   def resolve
-    @tree
+    @structure
   end
 end
