@@ -51,18 +51,16 @@ RSpec.describe KeyMapable::Mapper do
         })
       end
     end
-  end
 
-  describe '#transform' do
-    it 'transforms with the given block' do
-      object = double(foo: 'bar')
-      mapper = described_class.new(object)
+    context 'when given a transform' do
+      it 'sets the key and transforms the value' do
+        object = double(foo: 'bar')
+        mapper = described_class.new(object)
 
-      mapper.key_map(:foo, 'Foo') { transform(&:upcase) }
+        mapper.key_map(:foo, 'Foo', ->(val) { val.upcase })
 
-      expect(mapper.structure).to eq({
-        'Foo' => 'BAR'
-      })
+        expect(mapper.structure['Foo']).to eq('BAR')
+      end
     end
   end
 end

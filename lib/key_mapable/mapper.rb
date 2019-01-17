@@ -19,14 +19,15 @@ class KeyMapable::Mapper
     @structure[name] = child_mapper.resolve
   end
 
-  def key_map(original_key, new_key, &block)
+  def key_map(original_key, new_key, transform = ->(val) { val }, &block)
     original_subject = subject.public_send(original_key)
+    transformed_subject = transform.call(original_subject)
     if block_given?
-      child_mapper = self.class.new(original_subject)
+      child_mapper = self.class.new(transformed_subject)
       child_mapper.instance_eval &block
       @structure[new_key] = child_mapper.resolve
     else
-      @structure[new_key] = original_subject
+      @structure[new_key] = transformed_subject
     end
   end
 
@@ -37,10 +38,6 @@ class KeyMapable::Mapper
       child_mapper.instance_eval(&block)
       child_mapper.resolve
     end
-  end
-
-  def transform
-    @structure = yield(@subject)
   end
 
   def resolve

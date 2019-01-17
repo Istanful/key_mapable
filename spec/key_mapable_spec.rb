@@ -19,7 +19,7 @@ RSpec.describe KeyMapable do
 
           define_map(:to_h, resolve: mock_resolve, subject: :my_reader) do
             key_map(:name, 'Name')
-            key_map(:maybe_value, 'GuaranteedValue') { transform(&:to_s) }
+            key_map(:maybe_value, 'GuaranteedValue', ->(value) { value.to_s })
             key_value('AConstant') { 'Foo' }
             array_key_map(:rows, 'Rows') do
               key_map(:id, 'Id')
