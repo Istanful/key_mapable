@@ -57,7 +57,7 @@ RSpec.describe KeyMapable::Mapper do
         object = double(foo: 'bar')
         mapper = described_class.new(object)
 
-        mapper.key_map(:foo, 'Foo', ->(val) { val.upcase })
+        mapper.key_map(:foo, 'Foo', transform: ->(val) { val.upcase })
 
         expect(mapper.structure['Foo']).to eq('BAR')
       end

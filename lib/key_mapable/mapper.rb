@@ -19,7 +19,7 @@ class KeyMapable::Mapper
     @structure[name] = child_mapper.resolve
   end
 
-  def key_map(original_key, new_key, transform = ->(val) { val }, &block)
+  def key_map(original_key, new_key, transform: ->(val) { val }, &block)
     original_subject = subject.public_send(original_key)
     transformed_subject = transform.call(original_subject)
     if block_given?
