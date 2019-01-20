@@ -10,11 +10,9 @@ module KeyMapable
                  subject: :itself,
                  access: :method, &block)
     define_method(method_name) do
-      value = public_send(subject)
+      value = Accessor::Method.access(self, subject)
       accessor = Accessor.for(access)
-      mapper = Mapper.new(value, accessor)
-      mapper.instance_eval(&block)
-      resolve.call(mapper.structure)
+      resolve.call(Mapper.map(value, accessor, &block))
     end
   end
 end

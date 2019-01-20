@@ -10,44 +10,40 @@ class KeyMapable::Mapper
     @accessor = accessor
   end
 
-  def key_value(key)
-    @structure[key] = yield(subject)
+  def self.map(subject, accessor, &block)
+    mapper = new(subject, accessor)
+    mapper.instance_eval(&block)
+    mapper.structure
+  end
+
+  def key_value(name)
+    @structure[name] = yield(subject)
   end
 
   def key(name, &block)
-    child_mapper = self.class.new(subject, accessor)
-    child_mapper.instance_eval(&block)
-    @structure[name] = child_mapper.resolve
+    @structure[name] = map(&block)
   end
 
   def key_map(original_key, new_key, transform: ->(val) { val }, &block)
-    original_subject = access(original_key)
-    transformed_subject = transform.call(original_subject)
-    if block_given?
-      child_mapper = self.class.new(transformed_subject, accessor)
-      child_mapper.instance_eval &block
-      @structure[new_key] = child_mapper.resolve
-    else
-      @structure[new_key] = transformed_subject
-    end
+    next_subject = transform.call(access(original_key))
+
+    return @structure[new_key] = next_subject unless block_given?
+
+    @structure[new_key] = map(next_subject, &block)
   end
 
   def array_key_map(original_key, new_key, &block)
-    original_subject = access(original_key)
-    @structure[new_key] = original_subject.map do |item|
-      child_mapper = self.class.new(item, accessor)
-      child_mapper.instance_eval(&block)
-      child_mapper.resolve
-    end
-  end
-
-  def resolve
-    @structure
+    next_subject = access(original_key)
+    @structure[new_key] = next_subject.map { |item| map(item, &block) }
   end
 
   private
 
   def access(key)
     accessor.access(subject, key)
+  end
+
+  def map(next_subject = subject, &block)
+    self.class.map(next_subject, accessor, &block)
   end
 end
