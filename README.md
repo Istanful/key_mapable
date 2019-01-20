@@ -129,6 +129,15 @@ define_map(:to_h, resolve: ->(value) { OpenStruct.new(value)}) do
 end
 ```
 
+If the object itself is an hash you might want to use hash notation to access
+the values. In that case pass `:hash` as the `:access` argument.
+
+```ruby
+define_map(:to_h, access: :hash) do
+  # ...
+end
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.

@@ -2,11 +2,12 @@
 
 # Used internally by the KeyMapable concern.
 class KeyMapable::Mapper
-  attr_reader :subject, :structure
+  attr_reader :subject, :structure, :accessor
 
-  def initialize(subject)
+  def initialize(subject, accessor = KeyMapable::Accessor::Method)
     @subject = subject
     @structure = {}
+    @accessor = accessor
   end
 
   def key_value(key)
@@ -14,16 +15,16 @@ class KeyMapable::Mapper
   end
 
   def key(name, &block)
-    child_mapper = self.class.new(subject)
+    child_mapper = self.class.new(subject, accessor)
     child_mapper.instance_eval(&block)
     @structure[name] = child_mapper.resolve
   end
 
   def key_map(original_key, new_key, transform: ->(val) { val }, &block)
-    original_subject = subject.public_send(original_key)
+    original_subject = access(original_key)
     transformed_subject = transform.call(original_subject)
     if block_given?
-      child_mapper = self.class.new(transformed_subject)
+      child_mapper = self.class.new(transformed_subject, accessor)
       child_mapper.instance_eval &block
       @structure[new_key] = child_mapper.resolve
     else
@@ -32,9 +33,9 @@ class KeyMapable::Mapper
   end
 
   def array_key_map(original_key, new_key, &block)
-    original_subject = subject.public_send(original_key)
+    original_subject = access(original_key)
     @structure[new_key] = original_subject.map do |item|
-      child_mapper = self.class.new(item)
+      child_mapper = self.class.new(item, accessor)
       child_mapper.instance_eval(&block)
       child_mapper.resolve
     end
@@ -42,5 +43,11 @@ class KeyMapable::Mapper
 
   def resolve
     @structure
+  end
+
+  private
+
+  def access(key)
+    accessor.access(subject, key)
   end
 end

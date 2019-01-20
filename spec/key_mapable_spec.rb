@@ -75,5 +75,29 @@ RSpec.describe KeyMapable do
         expect(result.to_h).to eq({ 'Foo' => 'bar' })
       end
     end
+
+    context 'when using hash accessor' do
+      let(:mock_class) do
+        Class.new do
+          extend KeyMapable
+
+          define_map(:to_h, access: :hash, subject: :my_reader) do
+            key_map('foo', 'Foo') do
+              key_map('bar', 'Bar')
+            end
+          end
+
+          def my_reader
+            { 'foo' => { 'bar' => 'baz' } }
+          end
+        end
+      end
+
+      it 'uses the hash accessor' do
+        result = mock_class.new.to_h
+
+        expect(result).to eq({ 'Foo' => { 'Bar' => 'baz' } })
+      end
+    end
   end
 end

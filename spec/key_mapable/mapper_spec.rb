@@ -62,5 +62,24 @@ RSpec.describe KeyMapable::Mapper do
         expect(mapper.structure['Foo']).to eq('BAR')
       end
     end
+
+    context 'when given an accessor' do
+      let(:mock_accessor) do
+        Class.new do
+          def self.access(object, key)
+            object[key]
+          end
+        end
+      end
+
+      it 'uses that accessor' do
+        object = { foo: 'bar' }
+        mapper = described_class.new(object, mock_accessor)
+
+        mapper.key_map(:foo, 'Foo')
+
+        expect(mapper.structure['Foo']).to eq('bar')
+      end
+    end
   end
 end
