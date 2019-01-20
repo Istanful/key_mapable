@@ -18,32 +18,114 @@ Or install it yourself as:
 
     $ gem install key_mapable
 
-## Usage
+## A quick example
 
 ```ruby
-class MyClass
+class Espresso
   extend KeyMapable
 
-  # Define a method called `#to_h` that use the provided map. The keys
-  # will be accessed on the provided subject. Transform the resulting hash
-  # with the provided lambda.
-  define_map(:to_h, resolve: ->(val) { val }, subject: :my_reader) do
-    # Map the value of `#name` to the key 'Name'.
-    key_map(:name, 'Name')
-
-    # Map the value of `#maybe_value` to the key 'GuaranteedValue'.
-    # Transform the value by calling `#to_s` first.
-    key_map(:maybe_value, 'GuaranteedValue', transform: ->(val) { val.to_s })
-
-    # Map the key 'Name' to the value provided by the block.
-    key_value('AConstant') { 'Foo' }
-
-    # Map every item returned from `#rows`.
-    array_key_map(:rows, 'Rows') do
-      # Map the value of `#id` to the key 'Id'.
-      key_map(:id, 'Id')
+  define_map(:to_h) do
+    key_map(:strength, 'Strength')
+    key_map(:temperature, 'Temperature, transform: ->(value) { value.to_i })
+    key_value('IsHot') { |espresso| espresso.temperature >= 80 }
+    array_key_map(:sips, 'Sips') do
+      key_map(:sipper, 'Sipper')
+      key_map(:temperature, 'Temperature')
     end
   end
+end
+```
+
+## Usage
+
+To map keys from one format to another. You must first extend the `KeyMapable`
+module. This will add the necessary methods to define a map.
+
+```ruby
+class Espresso
+  extend KeyMapable
+end
+```
+
+The `.define_map` method lets you define a method that will return a hash from
+the given map rules defined in the block. The following example will map
+`#strength` to the key `'Strength'` in the hash returned from `#to_h`.
+
+```ruby
+class Espresso
+  extend KeyMapable
+
+  attr_accessor :strength
+
+  define_map(:to_h) do
+    key_map(:strength, 'Strength')
+  end
+end
+```
+
+You can then use the `#to_h` method like so:
+```ruby
+espresso = Espresso.new
+espresso.strength = 10
+espresso.to_h
+#=> { 'Strength' => 10 }
+```
+
+The map definition can be arbitrarily nested as long as the returned objects
+respond to the described methods.
+```ruby
+define_map(:to_h) do
+  key_map(:manufacturer, 'Manufacturer') do
+    key_map(:location, 'Location') do
+      key_map(:country, 'Country')
+    end
+  end
+end
+```
+
+If you wish to transform the value you can provide a third argument which must
+be a lambda and return the transformed value.
+
+```ruby
+define_map(:to_h) do
+  key_map(:temperature, 'Temperature', transform: ->(value) { value.to_i })
+end
+```
+
+Use `#array_key_map` to define maps over arrays:
+```ruby
+define_map(:to_h) do
+  array_key_map(:sips, 'Sips') do
+    key_map(:sipper, 'Sipper')
+    key_map(:temperature, 'Temperature')
+  end
+end
+```
+
+Use `#key_value` to define a key that will have a manufactured value. The block
+is yielded the subject and must return the manufactured value.
+
+```ruby
+define_map(:to_h) do
+  key_value('IsHot') { |espresso| espresso.temperature >= 80 }
+end
+```
+
+By default the object the keys are read on is the object itself. If you want to
+use another object you can set the `:subject` keyword to a reader method on the
+object.
+
+```ruby
+define_map(:to_h, subject: :my_reader) do
+  # ...
+end
+```
+
+Sometimes you do not want to return a hash. Provide the `:resolve` keyword to
+transform the resulting hash to your own format.
+```ruby
+define_map(:to_h, resolve: ->(value) { OpenStruct.new(value)}) do
+  # ...
 end
 ```
 
