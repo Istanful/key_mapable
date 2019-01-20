@@ -92,6 +92,16 @@ define_map(:to_h) do
 end
 ```
 
+You can define a structure for a custom key by using the `#key` method.
+
+```ruby
+define_map(:to_h) do
+  key('Coffee') do
+    key_map(:brand, 'Brand')
+  end
+end
+```
+
 Use `#array_key_map` to define maps over arrays:
 ```ruby
 define_map(:to_h) do
