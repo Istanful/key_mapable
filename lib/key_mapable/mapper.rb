@@ -10,7 +10,7 @@ class KeyMapable::Mapper
   end
 
   def key_value(key)
-    @structure[key] = yield()
+    @structure[key] = yield(subject)
   end
 
   def key(name, &block)
