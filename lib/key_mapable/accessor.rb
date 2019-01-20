@@ -18,7 +18,7 @@ class KeyMapable::Accessor
     hash: Hash
   }
 
-  def self.for(accessor_name)
-    ACCESSORS.fetch(accessor_name)
+  def self.for(accessor_or_name)
+    ACCESSORS.fetch(accessor_or_name, accessor_or_name)
   end
 end
